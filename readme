@@ -1,0 +1,84 @@
+Kanshi
+
+Kanshi is a local-first video intelligence toolkit designed for secure intranet environments. It processes uploaded video files to detect and re-identify people, analyze actions and emotions, extract and translate speech, and summarize everything into structured dossiers—with special attention to sensitive NSFW contexts like bondage, shibari, and kinbaku. No external APIs are required, though optional connectors for OpenAI and Google Gemini can be enabled if needed.
+Features
+
+    Modular pipeline: Person detection, tracking, re-identification, pose, action, emotion, audio transcription, translation, LLM-based narration, NSFW heuristics.
+    Person dossiers: Portrait gallery and detailed profiles with video appearances, actions, emotion timelines, tags, and re-ID history.
+    Heuristic tagging: Rule-based detection of domain-specific NSFW contexts, with user confirmation and learning potential.
+    Manual review UI: YouTube Studio-style dashboard with uploads, timelines, tagging, metadata corrections, and exports.
+    Local deployment: Runs via Docker on consumer GPUs (RTX 40xx/50xx, Blackwell-ready) with support for LM Studio, and optional OpenAI/Gemini.
+    Audit and admin tooling: Guided setup, role-based access (Administrator/Reviewer), config UI, logging, backups, and monitoring.
+
+Architecture Overview
+
+    Ingest & Orchestration
+        Upload wizard → Prefect-based workflow → stage-based GPU pipeline.
+
+    Analysis Stages
+        Detection/Tracking (YOLO/RT-DETR + ByteTrack), Re-ID & attributes, action/emotion modules, audio (Whisper + pyannote), translation + LLM summaries.
+
+    Storage & Metadata
+        PostgreSQL + pgvector for metadata and embeddings, MinIO for media assets, dedicated config service for secrets.
+
+    UI Layers
+        Next.js/React front-end for upload, review, person dossiers, tagging, exports, and admin settings.
+
+Hardware Requirements
+Tier	GPU	Notes
+Minimum	RTX 3050 / RTX 5050 (8 GB)	For prototypes or short clips.
+Recommended	RTX 4090 or RTX 5080 (16–24 GB)	Full pipeline, sequential processing.
+Advanced	RTX 5090 or dual RTX 40xx/50xx	Parallel jobs, faster turnarounds.
+
+    Note: RTX 50xx series requires CUDA 12.8 or newer.
+    Windows 11 (Docker Desktop + WSL2) or Ubuntu 22.04 LTS with recent NVIDIA drivers.
+
+Getting Started
+
+    Clone the repository
+
+    bash
+
+git clone https://github.com/<your-org>/kanshi.git
+cd kanshi
+
+Install prerequisites
+
+    NVIDIA drivers + CUDA 12.8 (or latest)
+    Docker & docker-compose (WSL2 on Windows)
+
+Run the first-time setup
+
+bash
+
+./scripts/first-run.sh      # Linux
+./scripts/first-run.ps1     # Windows PowerShell
+
+Start the stack
+
+bash
+
+    docker compose -f docker/compose.local.yml --profile core --profile cv --profile audio --profile ui up -d
+
+    Complete the setup wizard (opens automatically or at http://localhost:8080/setup):
+        System check, storage paths, API keys (optional), admin account.
+
+Usage
+
+    Upload videos via the dashboard → monitor stage progress → review tags, transcripts, and person dossiers.
+    Confirm or edit heuristic tags, merge/split person IDs, export reports (JSON/PDF).
+    Admin panel manages configuration, keys, price updates, backups, and optional API connectors.
+
+Roadmap (Hobby Project Scope)
+
+Minimal Compose stack with core services
+Upload & metadata API skeleton
+Heuristic tagging engine (config-driven)
+Person dossier UI + export templates
+Optional OpenAI/Gemini connectors (with safety filter toggles)
+
+    Documentation & smoke tests
+
+License
+
+MIT License – see LICENSE for details.
